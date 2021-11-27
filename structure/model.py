@@ -57,9 +57,8 @@ class SegDetectorModel(nn.Module):
 
         if self.training:
             for key, value in batch.items():
-                if value is not None:
-                    if hasattr(value, "to"):
-                        batch[key] = value.to(self.device)
+                if value is not None and hasattr(value, "to"):
+                    batch[key] = value.to(self.device)
             loss_with_metrics = self.criterion(pred, batch)
             loss, metrics = loss_with_metrics
             return loss, pred, metrics
