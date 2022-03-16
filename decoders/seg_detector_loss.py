@@ -2,6 +2,7 @@ import sys
 
 import torch
 import torch.nn as nn
+from .pss_loss import PSS_Loss
 
 
 class SegDetectorLossBuilder:
@@ -31,7 +32,9 @@ class SegDetectorLossBuilder:
         self.loss_kwargs = kwargs
 
     def build(self):
+        print(*self.loss_args, **self.loss_kwargs)
         return getattr(sys.modules[__name__], self.loss_class)(*self.loss_args, **self.loss_kwargs)
+
 
 
 class DiceLoss(nn.Module):

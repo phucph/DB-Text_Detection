@@ -4,10 +4,10 @@ import torch.nn.functional as F
 
 
 class PSS_Loss(nn.Module):
-    def __init__(self, cls_loss):
+    def __init__(self):
         super(PSS_Loss, self).__init__()
         self.eps = 1e-6
-        self.criterion = eval("self." + cls_loss + "_loss")
+        self.criterion = eval("self." + 'focal' + "_loss")
 
     def dice_loss(self, pred, gt, m):
         intersection = torch.sum(pred * gt * m)
@@ -44,12 +44,14 @@ class PSS_Loss(nn.Module):
         return loss
 
     def focal_loss(self, pred, gt, m, alpha=0.25, gamma=0.6):
+        
         pos_mask = (gt == 1).float()
         neg_mask = (gt == 0).float()
         mask = alpha * pos_mask * torch.pow(1 - pred.data, gamma) + (1 - alpha) * neg_mask * torch.pow(pred.data, gamma)
         l = F.binary_cross_entropy(pred, gt, weight=mask, reduction="none")
         loss = torch.sum(l * m) / (self.eps + m.sum())
         loss *= 10
+        print("abc")
         return loss
 
     def wbce_orig_loss(self, pred, gt, m):
@@ -84,7 +86,11 @@ class PSS_Loss(nn.Module):
     def dice_ohnm_bce_loss(self, pred, gt, m):
         return (self.dice_ohnm_loss(pred, gt, m) + self.bce_loss(pred, gt, m)) / 2.0
 
-    def forward(self, pred, gt, mask, gt_type="shrink"):
+    def forward(self, pred, batch, gt_type="shrink"):
+        pred = pred["binary"]
+        gt = batch["gt"]
+        mask = batch['mask']
+        print(pred, gt, mask)
         if gt_type == "shrink":
             loss = self.get_loss(pred, gt, mask)
             return loss
@@ -105,7 +111,10 @@ class PSS_Loss(nn.Module):
             return NotImplementedError("gt_type [%s] is not implemented", gt_type)
 
     def get_loss(self, pred, gt, mask):
-        loss = torch.tensor(0.0)
+        loss = torch.tensor(0.0, device= torch.device("cuda"))
+        print(loss)
         for ind in range(pred.size(1)):
-            loss += self.criterion(pred[:, ind, :, :], gt[:, ind, :, :], mask)
+            print("a")
+            loss+=self.criterion(pred[:, ind, :, :], gt[:, ind, :, :], mask)
+            print(loss)
         return loss

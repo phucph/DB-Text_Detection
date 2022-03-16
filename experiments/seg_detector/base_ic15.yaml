@@ -1,7 +1,7 @@
 import:
     - 'experiments/base.yaml'
 package:
-    - 'decoders.seg_detector_loss'
+    - 'decoders.pss_loss'
 define:
   - name: train_data
     class: ImageDataset
@@ -14,12 +14,12 @@ define:
           augmenter_args:
               - ['Fliplr', 0.5]
               - {'cls': 'Affine', 'rotate': [-10, 10]}
-              - ['Resize', [0.5, 3.0]]
+              - ['Resize', [0.5, 2.0]]
           only_resize: False
           keep_ratio: False
         - class: RandomCropData
-          size: [640, 640]
-          max_tries: 10
+          size: [1280, 1280]
+          max_tries: 50
         - class: MakeICDARData
         - class: MakeSegDetectionData
         - class: MakeBorderMap
@@ -36,7 +36,7 @@ define:
     processes:
         - class: AugmentDetectionData
           augmenter_args:
-              - ['Resize', {'width': 1280, 'height': 736}]
+              - ['Resize', {'width': 2048, 'height': 2048}]
               # - ['Resize', {'width': 2048, 'height': 1152}]
           only_resize: True
           keep_ratio: False

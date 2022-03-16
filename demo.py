@@ -84,6 +84,7 @@ class Demo:
         return resized_img
 
     def load_image(self, image_path):
+        print(image_path)
         img = cv2.imread(image_path, cv2.IMREAD_COLOR).astype("float32")
         original_shape = img.shape[:2]
         img = self.resize_image(img)

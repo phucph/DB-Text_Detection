@@ -16,7 +16,7 @@ define:
                     adaptive: True
                     in_channels: [64, 128, 256, 512]
                     k: 50
-                loss_class: L1BalanceCELoss
+                loss_class: PSS_Loss
 
         representer:
             class: SegDetectorRepresenter

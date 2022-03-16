@@ -1,6 +1,7 @@
 import:
     - 'experiments/seg_detector/base_ic15.yaml'
-package: []
+package:
+    - 'decoders.pss_loss'
 define:
   - name: 'Experiment'
     class: Experiment
@@ -16,7 +17,9 @@ define:
                     adaptive: True
                     in_channels: [256, 512, 1024, 2048]
                     k: 50
-                loss_class: L1BalanceCELoss
+                loss_class: L1BCEMiningLoss
+                
+   
 
         representer:
             class: SegDetectorRepresenter

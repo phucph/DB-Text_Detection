@@ -17,7 +17,9 @@ class Trainer:
         self.model_saver = experiment.train.model_saver
 
         # FIXME: Hack the save model path into logger path
-        self.model_saver.dir_path = self.logger.save_dir(self.model_saver.dir_path)
+        # self.model_saver.dir_path = self.logger.save_dir(self.model_saver.dir_path)
+        self.model_saver.dir_path = '/content/drive/My Drive/ocr/DB-TextDetection/'+ self.model_saver.dir_path
+
         self.current_lr = 0
 
         self.total = 0
@@ -99,7 +101,6 @@ class Trainer:
 
     def train_step(self, model, optimizer, batch, epoch, step, **kwards):
         optimizer.zero_grad()
-
         results = model.forward(batch, training=True)
         if len(results) == 2:
             l, pred = results

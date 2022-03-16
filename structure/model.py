@@ -32,7 +32,9 @@ class SegDetectorModel(nn.Module):
     def __init__(self, args, device, distributed: bool = False, local_rank: int = 0):
         super(SegDetectorModel, self).__init__()
         from decoders.seg_detector_loss import SegDetectorLossBuilder
-
+    
+        print(args["loss_class"],*args.get("loss_args", [] ))
+        
         self.model = BasicModel(args)
         # for loading models
         self.model = parallelize(self.model, distributed, local_rank)
