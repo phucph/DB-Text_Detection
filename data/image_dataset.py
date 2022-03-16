@@ -7,6 +7,7 @@ import math
 import cv2
 import numpy as np
 import torch.utils.data as data
+import os 
 
 from concern.config import Configurable, State
 
@@ -40,7 +41,7 @@ class ImageDataset(data.Dataset, Configurable):
                 image_list = fid.readlines()
             if self.is_training:
                 image_path = [self.data_dir[i] + "/train_images/" + timg.strip() for timg in image_list]
-                gt_path = [self.data_dir[i] + "/train_gts/" + timg.strip() + ".txt" for timg in image_list]
+                gt_path = [self.data_dir[i] + "/train_gts/" + timg.strip().split(".")[0]  + ".txt" for timg in image_list]
             else:
                 image_path = [self.data_dir[i] + "/test_images/" + timg.strip() for timg in image_list]
                 print(self.data_dir[i])
@@ -48,30 +49,46 @@ class ImageDataset(data.Dataset, Configurable):
                     gt_path = [self.data_dir[i] + "/test_gts/" + timg.strip() + ".txt" for timg in image_list]
                 else:
                     gt_path = [
-                        self.data_dir[i] + "/test_gts/" + "gt_" + timg.strip().split(".")[0] + ".txt"
+                        self.data_dir[i] + "/test_gts/" + timg.strip().split(".")[0] + ".txt"
                         for timg in image_list
                     ]
-            self.image_paths += image_path
-            self.gt_paths += gt_path
+        _image_path =[]
+        _gt_path =[]
+        for item in zip(image_path, gt_path): 
+          if not os.path.exists(item[0]) or not os.path.exists(item[1]):
+                continue
+          _image_path.append(item[0])
+          _gt_path.append(item[1])
+        self.image_paths+= _image_path
+        self.gt_paths += _gt_path
         self.num_samples = len(self.image_paths)
+        
         self.targets = self.load_ann()
         if self.is_training:
-            assert len(self.image_paths) == len(self.targets)
+            print(len(self.targets), len(self.gt_paths))
+            assert len(self.gt_paths) == len(self.targets)
 
     def load_ann(self):
         res = []
         for gt in self.gt_paths:
+            if not os.path.exists(gt):
+                continue
             lines = []
-            reader = open(gt, "r").readlines()
+            reader = open(gt, "r", encoding="utf8", errors='ignore').readlines()
             for line in reader:
                 item = {}
                 parts = line.strip().split(",")
+
                 label = parts[-1]
                 if "TD" in self.data_dir[0] and label == "1":
                     label = "###"
                 line = [i.strip("\ufeff").strip("\xef\xbb\xbf") for i in parts]
                 if "icdar" in self.data_dir[0]:
+                  try:
                     poly = np.array(list(map(float, line[:8]))).reshape((-1, 2)).tolist()
+                  except Exception as e:
+                    print(e)
+                    continue
                 else:
                     num_points = math.floor((len(line) - 1) / 2) * 2
                     poly = np.array(list(map(float, line[:num_points]))).reshape((-1, 2)).tolist()
