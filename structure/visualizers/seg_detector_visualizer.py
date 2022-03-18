@@ -90,6 +90,15 @@ class SegDetectorVisualizer(Configurable):
         boxes = boxes[0]
         original_image = cv2.imread(image_path, cv2.IMREAD_COLOR)
         original_shape = original_image.shape
+        scale_h = 2176/min(original_shape[0],original_shape[1])
+        scale_w = 2176/max(original_shape[0],original_shape[1])
+        # boxes = boxes.astype(np.float)
+        boxes = np.reshape(boxes,(-1,4,2)).astype(np.float)
+        boxes[:, :, 0] *= scale_h
+        boxes[:, :, 1] *= scale_w 
+      
+        # print(boxes)
+        # exit()
         pred_canvas = original_image.copy().astype(np.uint8)
         pred_canvas = cv2.resize(pred_canvas, (original_shape[1], original_shape[0]))
 

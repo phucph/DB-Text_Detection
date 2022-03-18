@@ -67,7 +67,7 @@ define:
                 num_workers: 16
                 collect_fn:
                     class: ICDARCollectFN
-        visualize: false
+        visualize: true
         interval: 4500
         exempt: 1
 

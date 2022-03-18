@@ -10,12 +10,14 @@ from data.augmenter import AugmenterBuilder
 from .data_process import DataProcess
 
 
+
 class AugmentData(DataProcess):
     augmenter_args = State(autoload=False)
 
     def __init__(self, **kwargs):
         self.augmenter_args = kwargs.get("augmenter_args")
         self.keep_ratio = kwargs.get("keep_ratio")
+        self.resize_pad =  kwargs.get("resize_pad")
         self.only_resize = kwargs.get("only_resize")
         self.augmenter = AugmenterBuilder().build(self.augmenter_args)
 
@@ -24,6 +26,7 @@ class AugmentData(DataProcess):
 
     def resize_image(self, image):
         origin_height, origin_width, _ = image.shape
+        
         resize_shape = self.augmenter_args[0][1]
         height = resize_shape["height"]
         width = resize_shape["width"]
@@ -34,6 +37,22 @@ class AugmentData(DataProcess):
         image = cv2.resize(image, (width, height))
         return image
 
+    def resize_pad_image(self, img):
+        height, width, _ = img.shape
+        resize_shape = self.augmenter_args[0][1]
+        _height = resize_shape["height"]
+        _width = resize_shape["width"]
+        width = min(width, max(int(height / img.shape[0] * img.shape[1] / 32 + 0.5) * 32, 32))
+        canvas = np.zeros((_height,_width, 3), np.float32)
+        if max(height, width) < resize_shape["height"]:
+          image = cv2.resize(img, (width, height))
+        else: 
+          scale = resize_shape["width"]*1.0 / max(height, width)
+          image = cv2.resize(img, dsize=None, fx=scale, fy=scale)
+          height, width = image.shape[:2]
+        canvas[:height, :width, :] = image
+        return canvas
+
     def process(self, data):
         image = data["image"]
         aug = None
@@ -41,7 +60,9 @@ class AugmentData(DataProcess):
 
         if self.augmenter:
             aug = self.augmenter.to_deterministic()
-            if self.only_resize:
+            if self.resize_pad:
+                data["image"] = self.resize_pad_image(image)
+            elif self.only_resize:
                 data["image"] = self.resize_image(image)
             else:
                 data["image"] = aug.augment_image(image)

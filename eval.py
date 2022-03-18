@@ -1,6 +1,7 @@
 #!python3
 import argparse
 import os
+import cv2
 import time
 
 import numpy as np
@@ -174,6 +175,10 @@ class Eval:
 
                     if visualize and self.structure.visualizer:
                         vis_image = self.structure.visualizer.visualize(batch, output, pred)
+                        # img_path = (os.path.join(self.args["result_dir"] , list(vis_image.keys())[0].split("_")[0]))
+                        # # print(list(vis_image.values())[0])
+                        # cv2.imwrite(img_path,  list(vis_image.values()))
+                        # exit()
                         self.logger.save_image_dict(vis_image)
                         vis_images.update(vis_image)
                 metrics = self.structure.measurer.gather_measure(raw_metrics, self.logger)

@@ -36,9 +36,11 @@ define:
     processes:
         - class: AugmentDetectionData
           augmenter_args:
-              - ['Resize', {'width': 2048, 'height': 2048}]
+              - ['Resize', {'width': 2496, 'height': 2496}]
               # - ['Resize', {'width': 2048, 'height': 1152}]
-          only_resize: True
+          resize_pad: True 
+          only_resize: False
+          
           keep_ratio: False
         - class: MakeICDARData
         - class: MakeSegDetectionData

@@ -121,6 +121,8 @@ class SegDetectorRepresenter(Configurable):
         height, width = bitmap.shape
         contours, _ = cv2.findContours((bitmap * 255).astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         num_contours = min(len(contours), self.max_candidates)
+      
+        
         boxes = np.zeros((num_contours, 4, 2), dtype=np.int16)
         scores = np.zeros((num_contours,), dtype=np.float32)
 
@@ -139,13 +141,18 @@ class SegDetectorRepresenter(Configurable):
             if sside < self.min_size + 2:
                 continue
             box = np.array(box)
+           
+            # print(box[0])
+            # exit()
             if not isinstance(dest_width, int):
                 dest_width = dest_width.item()
                 dest_height = dest_height.item()
 
-            box[:, 0] = np.clip(np.round(box[:, 0] / width * dest_width), 0, dest_width)
+            box[:, 0] = np.clip(np.round(box[:, 0] / width * dest_width), 0, dest_width) 
             box[:, 1] = np.clip(np.round(box[:, 1] / height * dest_height), 0, dest_height)
             boxes[index, :, :] = box.astype(np.int16)
+            
+           
             scores[index] = score
         return boxes, scores
 
@@ -158,7 +165,13 @@ class SegDetectorRepresenter(Configurable):
         return expanded
 
     def get_mini_boxes(self, contour):
-        bounding_box = cv2.minAreaRect(contour)
+        bounding_box = list(cv2.minAreaRect(contour))
+        bounding_box[1] = list(bounding_box[1])
+        bounding_box[1][0]*=1.03 
+        bounding_box[1] = tuple(bounding_box[1])
+        bounding_box = tuple(bounding_box)
+    
+        
         points = sorted(list(cv2.boxPoints(bounding_box)), key=lambda x: x[0])
 
         index_1, index_2, index_3, index_4 = 0, 1, 2, 3

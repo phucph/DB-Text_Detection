@@ -74,14 +74,19 @@ class Demo:
 
     def resize_image(self, img):
         height, width, _ = img.shape
-        if height < width:
-            new_height = self.args["image_short_side"]
-            new_width = int(math.ceil(new_height / height * width / 32) * 32)
-        else:
-            new_width = self.args["image_short_side"]
-            new_height = int(math.ceil(new_width / width * height / 32) * 32)
-        resized_img = cv2.resize(img, (new_width, new_height))
-        return resized_img
+        width = min(width, max(int(height / img.shape[0] * img.shape[1] / 32 + 0.5) * 32, 32))
+        canvas = np.zeros((self.args["image_short_side"],self.args["image_short_side"], 3), np.float32)
+
+        image = cv2.resize(img, (width, height))
+        canvas[:height, :width, :] = image
+        # if height < width:
+        #     new_height = self.args["image_short_side"]
+        #     new_width = int(math.ceil(new_height / height * width / 32) * 32)
+        # else:
+        #     new_width = self.args["image_short_side"]
+        #     new_height = int(math.ceil(new_width / width * height / 32) * 32)
+        # resized_img = cv2.resize(img, (new_width, new_height))
+        return canvas
 
     def load_image(self, image_path):
         print(image_path)
@@ -139,6 +144,7 @@ class Demo:
 
             if visualize and self.structure.visualizer:
                 vis_image = self.structure.visualizer.demo_visualize(image_path, output)
+                print(vis_image)
                 cv2.imwrite(
                     os.path.join(self.args["result_dir"], image_path.split("/")[-1].split(".")[0] + ".jpg"), vis_image
                 )
