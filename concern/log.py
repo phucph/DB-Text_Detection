@@ -162,8 +162,10 @@ class Logger(Configurable):
             os.mkdir(vis_dir)
         return vis_dir
 
-    def save_image_dict(self, images, max_size=1024):
+    def save_image_dict(self, images, max_size=2176):
+
         for file_name, image in images.items():
+            print(image.shape)
             height, width = image.shape[:2]
             if height > width:
                 actual_height = min(height, max_size)
@@ -172,7 +174,8 @@ class Logger(Configurable):
                 actual_width = min(width, max_size)
                 actual_height = int(round(actual_width * height / width))
                 image = cv2.resize(image, (actual_width, actual_height))
-            cv2.imwrite(os.path.join(self.vis_dir(), file_name + ".jpg"), image)
+            print(image.shape)
+            cv2.imwrite(os.path.join('results', file_name + ".jpg"), image)
 
     def __getattr__(self, name):
         message_levels = set(["debug", "info", "warning", "error", "critical"])

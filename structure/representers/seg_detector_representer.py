@@ -49,6 +49,7 @@ class SegDetectorRepresenter(Configurable):
         scores_batch = []
         for batch_index in range(images.size(0)):
             height, width = batch["shape"][batch_index]
+            
             if is_output_polygon:
                 boxes, scores = self.polygons_from_bitmap(pred[batch_index], segmentation[batch_index], width, height)
             else:
@@ -142,8 +143,6 @@ class SegDetectorRepresenter(Configurable):
                 continue
             box = np.array(box)
            
-            # print(box[0])
-            # exit()
             if not isinstance(dest_width, int):
                 dest_width = dest_width.item()
                 dest_height = dest_height.item()

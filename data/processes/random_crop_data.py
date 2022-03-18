@@ -10,7 +10,7 @@ from .data_process import DataProcess
 class RandomCropData(DataProcess):
     size = State(default=(512, 512))
     max_tries = State(default=50)
-    min_crop_side_ratio = State(default=0.1)
+    min_crop_side_ratio = State(default=0.2)
     require_original_image = State(default=False)
 
     def __init__(self, **kwargs):
@@ -43,6 +43,8 @@ class RandomCropData(DataProcess):
             data["image"] = ori_img
         else:
             data["image"] = img
+        cv2.imwrite("image.jpg", img)
+        exit()
         data["lines"] = ori_lines
         data["scale_w"] = scale
         data["scale_h"] = scale

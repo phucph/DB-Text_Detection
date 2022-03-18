@@ -167,7 +167,7 @@ class Eval:
                     output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args["polygon"])
                     if not os.path.isdir(self.args["result_dir"]):
                         os.mkdir(self.args["result_dir"])
-                    self.format_output(batch, output)
+                    # self.format_output(batch, output)
                     raw_metric = self.structure.measurer.validate_measure(
                         batch, output, is_output_polygon=self.args["polygon"], box_thresh=self.args["box_thresh"]
                     )
@@ -175,6 +175,9 @@ class Eval:
 
                     if visualize and self.structure.visualizer:
                         vis_image = self.structure.visualizer.visualize(batch, output, pred)
+                        # for i, image in vis_image.items():
+                        #     cv2.imwrite("abc.jpg",image)
+                        # exit()
                         # img_path = (os.path.join(self.args["result_dir"] , list(vis_image.keys())[0].split("_")[0]))
                         # # print(list(vis_image.values())[0])
                         # cv2.imwrite(img_path,  list(vis_image.values()))

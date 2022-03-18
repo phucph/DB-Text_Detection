@@ -45,9 +45,10 @@ class SegDetectorVisualizer(Configurable):
         ignore_tags = batch["ignore_tags"][index]
         original_shape = batch["shape"][index]
         filename = batch["filename"][index]
+        
         std = np.array([0.229, 0.224, 0.225]).reshape(3, 1, 1)
         mean = np.array([0.485, 0.456, 0.406]).reshape(3, 1, 1)
-        image = (image.cpu().numpy() * std + mean).transpose(1, 2, 0) * 255
+        image = (image.cpu().numpy()*std + mean).transpose(1, 2, 0) * 255
         pred_canvas = image.copy().astype(np.uint8)
         pred_canvas = cv2.resize(pred_canvas, (original_shape[1], original_shape[0]))
 
@@ -90,12 +91,15 @@ class SegDetectorVisualizer(Configurable):
         boxes = boxes[0]
         original_image = cv2.imread(image_path, cv2.IMREAD_COLOR)
         original_shape = original_image.shape
+        
         scale_h = 2176/min(original_shape[0],original_shape[1])
         scale_w = 2176/max(original_shape[0],original_shape[1])
+        print(scale_h, scale_w)
         # boxes = boxes.astype(np.float)
         boxes = np.reshape(boxes,(-1,4,2)).astype(np.float)
+        
         boxes[:, :, 0] *= scale_h
-        boxes[:, :, 1] *= scale_w 
+        boxes[:, :, 1] /= scale_w 
       
         # print(boxes)
         # exit()

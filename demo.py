@@ -77,7 +77,12 @@ class Demo:
         width = min(width, max(int(height / img.shape[0] * img.shape[1] / 32 + 0.5) * 32, 32))
         canvas = np.zeros((self.args["image_short_side"],self.args["image_short_side"], 3), np.float32)
 
-        image = cv2.resize(img, (width, height))
+        if max(height, width) < self.args["image_short_side"]:
+          image = cv2.resize(img, (width, height))
+        else: 
+          scale = self.args["image_short_side"]*1.0 / max(height, width)
+          image = cv2.resize(img, dsize=None, fx=scale, fy=scale)
+          height, width = image.shape[:2]
         canvas[:height, :width, :] = image
         # if height < width:
         #     new_height = self.args["image_short_side"]
@@ -86,6 +91,7 @@ class Demo:
         #     new_width = self.args["image_short_side"]
         #     new_height = int(math.ceil(new_width / width * height / 32) * 32)
         # resized_img = cv2.resize(img, (new_width, new_height))
+       
         return canvas
 
     def load_image(self, image_path):
