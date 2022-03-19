@@ -146,9 +146,13 @@ class SegDetectorRepresenter(Configurable):
             if not isinstance(dest_width, int):
                 dest_width = dest_width.item()
                 dest_height = dest_height.item()
-
-            box[:, 0] = np.clip(np.round(box[:, 0] / width * dest_width), 0, dest_width) 
-            box[:, 1] = np.clip(np.round(box[:, 1] / height * dest_height), 0, dest_height)
+       
+            if min(dest_height, dest_width) > 2176:
+              box[:, 0] = np.clip(np.round(box[:, 0] * (dest_height/width)), 0, dest_width) 
+              box[:, 1] = np.clip(np.round(box[:, 1] * (dest_height/height)), 0, dest_height)
+            else:
+              box[:, 0] = np.clip(np.round(box[:, 0]), 0, dest_width) 
+              box[:, 1] = np.clip(np.round(box[:, 1]), 0, dest_height)
             boxes[index, :, :] = box.astype(np.int16)
             
            

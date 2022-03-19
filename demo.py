@@ -139,10 +139,22 @@ class Demo:
         batch = dict()
         batch["filename"] = [image_path]
         img, original_shape = self.load_image(image_path)
-        batch["shape"] = [original_shape]
+        if min(original_shape) > 2176:
+            batch['shape'] = [original_shape]
+        else: 
+            batch['shape'] = [(2176, 2176)]
+
+        # batch["shape"] = [original_shape]
+        # if max(original_shape[1],original_shape[0]) <= 2176:
+        #     w = int(original_shape[1]/32)*32 
+        #     h = int(original_shape[0]/32)*32
         with torch.no_grad():
+            # batch["image"] = img[:, :, :max(h, 1312), :max(w, 1312)]
             batch["image"] = img
+            print(batch["image"].shape)
             pred = model.forward(batch, training=False)
+            print(pred.shape)
+            # exit()
             output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args["polygon"])
             if not os.path.isdir(self.args["result_dir"]):
                 os.mkdir(self.args["result_dir"])
@@ -150,7 +162,7 @@ class Demo:
 
             if visualize and self.structure.visualizer:
                 vis_image = self.structure.visualizer.demo_visualize(image_path, output)
-                print(vis_image)
+                # print(vis_image)
                 cv2.imwrite(
                     os.path.join(self.args["result_dir"], image_path.split("/")[-1].split(".")[0] + ".jpg"), vis_image
                 )

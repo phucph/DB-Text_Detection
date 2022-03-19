@@ -51,7 +51,8 @@ class SegDetectorVisualizer(Configurable):
         image = (image.cpu().numpy()*std + mean).transpose(1, 2, 0) * 255
         pred_canvas = image.copy().astype(np.uint8)
         # print(pred_canvas.shape)
-        pred_canvas = pred_canvas[:original_shape[0], :original_shape[1],: ]
+        pred_canvas = pred_canvas[:min(original_shape[0], 2176), :min(original_shape[1], 2176),: ]
+       
         # pred_canvas = cv2.resize(pred_canvas, (original_shape[1], original_shape[0]))
 
         if isinstance(pred, dict) and "thresh" in pred:
@@ -93,22 +94,24 @@ class SegDetectorVisualizer(Configurable):
         boxes = boxes[0]
         original_image = cv2.imread(image_path, cv2.IMREAD_COLOR)
         original_shape = original_image.shape
-        scale_w,scale_h  = 1, 1
-        print(original_shape)
-        if original_shape[1] < original_shape[0] > 2176:
-          scale_h =  original_shape[0]/min(original_shape[1],2176)
-        elif original_shape[0] < original_shape[1] > 2176:
-          scale_w =  original_shape[1]/min(original_shape[0],2176)
-        if max(original_shape[0], original_shape[1]) <2176:
-          scale_h = 2176/original_shape[1]
-          sacle_w = 2176/original_shape[0]
-        print(scale_h, scale_w)
-        scale_h = 7016/4961
-        # boxes = boxes.astype(np.float)
-        boxes = np.reshape(boxes,(-1,4,2)).astype(np.float)
         
-        boxes[:, :, 0] *= scale_h
-        boxes[:, :, 1] *= scale_w 
+        # scale_w,scale_h  = 1, 1
+        # print(original_shape)
+        # if original_shape[1] < original_shape[0] > 2176:
+        #   scale_h =  original_shape[0]/min(original_shape[1],2176)
+        # elif original_shape[0] < original_shape[1] > 2176:
+        #   scale_w =  original_shape[1]/min(original_shape[0],2176)
+        # if max(original_shape[0], original_shape[1]) <2176:
+        #   print("a")
+        #   scale_h = 2176/original_shape[1]
+        #   sacle_w = 2176/original_shape[0]
+        # print(scale_h, scale_w)
+        # # scale_h = 7016/4961
+        # # boxes = boxes.astype(np.float)
+        # boxes = np.reshape(boxes,(-1,4,2)).astype(np.float)
+        
+        # boxes[:, :, 0] *= scale_h
+        # boxes[:, :, 1] *= scale_w 
       
         # print(boxes)
         # exit()
@@ -118,5 +121,5 @@ class SegDetectorVisualizer(Configurable):
         for box in boxes:
             box = np.array(box).astype(np.int32).reshape(-1, 2)
             cv2.polylines(pred_canvas, [box], True, (0, 255, 0), 2)
-
+        
         return pred_canvas
