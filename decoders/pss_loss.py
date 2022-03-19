@@ -4,10 +4,10 @@ import torch.nn.functional as F
 
 
 class PSS_Loss(nn.Module):
-    def __init__(self):
+    def __init__(self, cls_loss):
         super(PSS_Loss, self).__init__()
         self.eps = 1e-6
-        self.criterion = eval("self." + 'focal' + "_loss")
+        self.criterion = eval("self." + cls_loss + "_loss")
 
     def dice_loss(self, pred, gt, m):
         intersection = torch.sum(pred * gt * m)
@@ -51,8 +51,7 @@ class PSS_Loss(nn.Module):
         l = F.binary_cross_entropy(pred, gt, weight=mask, reduction="none")
         loss = torch.sum(l * m) / (self.eps + m.sum())
         loss *= 10
-        print("abc")
-        return loss
+        return loss, l
 
     def wbce_orig_loss(self, pred, gt, m):
         n, h, w = pred.size()
@@ -90,7 +89,7 @@ class PSS_Loss(nn.Module):
         pred = pred["binary"]
         gt = batch["gt"]
         mask = batch['mask']
-        print(pred, gt, mask)
+  
         if gt_type == "shrink":
             loss = self.get_loss(pred, gt, mask)
             return loss
@@ -112,9 +111,6 @@ class PSS_Loss(nn.Module):
 
     def get_loss(self, pred, gt, mask):
         loss = torch.tensor(0.0, device= torch.device("cuda"))
-        print(loss)
         for ind in range(pred.size(1)):
-            print("a")
             loss+=self.criterion(pred[:, ind, :, :], gt[:, ind, :, :], mask)
-            print(loss)
         return loss

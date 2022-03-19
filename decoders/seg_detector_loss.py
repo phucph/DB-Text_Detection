@@ -248,6 +248,38 @@ class L1BCEMiningLoss(nn.Module):
         return loss, metrics
 
 
+class L1FocalMiningLoss(nn.Module):
+    """
+    Basicly the same with L1BalanceCELoss, where the bce loss map is used as
+        attention weigts for DiceLoss
+    """
+
+    def __init__(self, eps=1e-6, l1_scale=10, pss_scale=5):
+        super(L1BCEMiningLoss, self).__init__()
+        from .pss_loss import PSS_Loss
+        from .dice_loss import DiceLoss
+        from .l1_loss import MaskL1Loss
+
+        self.dice_loss = DiceLoss(eps=eps)
+        self.l1_loss = MaskL1Loss()
+        self.pss_loss = PSS_Loss(cls_loss='focal')
+
+        self.l1_scale = l1_scale
+        self.pss_scale = pss_scale
+
+    def forward(self, pred, batch):
+        bce_loss, bce_map = self.pss_scale(pred["binary"], batch["gt"], batch["mask"], return_origin=True)
+        l1_loss, l1_metric = self.l1_loss(pred["thresh"], batch["thresh_map"], batch["thresh_mask"])
+        bce_map = (bce_map - bce_map.min()) / (bce_map.max() - bce_map.min())
+        dice_loss = self.dice_loss(pred["thresh_binary"], batch["gt"], batch["mask"], weights=bce_map + 1)
+        metrics = dict(bce_loss=bce_loss)
+        metrics["thresh_loss"] = dice_loss
+        loss = dice_loss + self.l1_scale * l1_loss + bce_loss * self.pss_scale
+        metrics.update(**l1_metric)
+        return loss, metrics
+
+
+
 class L1LeakyDiceLoss(nn.Module):
     """
     LeakyDiceLoss on binary,
