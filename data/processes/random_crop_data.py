@@ -44,7 +44,6 @@ class RandomCropData(DataProcess):
         else:
             data["image"] = img
         cv2.imwrite("image.jpg", img)
-        exit()
         data["lines"] = ori_lines
         data["scale_w"] = scale
         data["scale_h"] = scale

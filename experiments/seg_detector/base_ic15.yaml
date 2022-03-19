@@ -16,7 +16,7 @@ define:
               - {'cls': 'Affine', 'rotate': [-10, 10]}
               - ['Resize', [0.5, 2.0]]
           only_resize: False
-          keep_ratio: False
+          keep_ratio: True
         - class: RandomCropData
           size: [1280, 1280]
           max_tries: 50

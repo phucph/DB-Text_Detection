@@ -255,7 +255,7 @@ class L1FocalMiningLoss(nn.Module):
     """
 
     def __init__(self, eps=1e-6, l1_scale=10, pss_scale=5):
-        super(L1BCEMiningLoss, self).__init__()
+        super(L1FocalMiningLoss, self).__init__()
         from .pss_loss import PSS_Loss
         from .dice_loss import DiceLoss
         from .l1_loss import MaskL1Loss
@@ -268,7 +268,7 @@ class L1FocalMiningLoss(nn.Module):
         self.pss_scale = pss_scale
 
     def forward(self, pred, batch):
-        bce_loss, bce_map = self.pss_scale(pred["binary"], batch["gt"], batch["mask"], return_origin=True)
+        bce_loss, bce_map = self.pss_loss(pred, batch)
         l1_loss, l1_metric = self.l1_loss(pred["thresh"], batch["thresh_map"], batch["thresh_mask"])
         bce_map = (bce_map - bce_map.min()) / (bce_map.max() - bce_map.min())
         dice_loss = self.dice_loss(pred["thresh_binary"], batch["gt"], batch["mask"], weights=bce_map + 1)

@@ -51,7 +51,7 @@ class PSS_Loss(nn.Module):
         l = F.binary_cross_entropy(pred, gt, weight=mask, reduction="none")
         loss = torch.sum(l * m) / (self.eps + m.sum())
         loss *= 10
-        return loss, l
+        return loss
 
     def wbce_orig_loss(self, pred, gt, m):
         n, h, w = pred.size()
@@ -86,9 +86,11 @@ class PSS_Loss(nn.Module):
         return (self.dice_ohnm_loss(pred, gt, m) + self.bce_loss(pred, gt, m)) / 2.0
 
     def forward(self, pred, batch, gt_type="shrink"):
+        
         pred = pred["binary"]
         gt = batch["gt"]
         mask = batch['mask']
+       
   
         if gt_type == "shrink":
             loss = self.get_loss(pred, gt, mask)
@@ -111,6 +113,7 @@ class PSS_Loss(nn.Module):
 
     def get_loss(self, pred, gt, mask):
         loss = torch.tensor(0.0, device= torch.device("cuda"))
-        for ind in range(pred.size(1)):
-            loss+=self.criterion(pred[:, ind, :, :], gt[:, ind, :, :], mask)
-        return loss
+        for ind in range(pred.size(1)): 
+            loss +=self.criterion(pred[:, ind, :, :], gt[:, ind, :, :], mask)
+        l = F.binary_cross_entropy(pred, gt, reduction="none")[:, 0, :, :]
+        return loss, l

@@ -17,7 +17,7 @@ define:
                     adaptive: True
                     in_channels: [256, 512, 1024, 2048]
                     k: 50
-                loss_class: L1BCEMiningLoss
+                loss_class: L1FocalMiningLoss
                 
    
 
