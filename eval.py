@@ -163,11 +163,20 @@ class Eval:
                     if self.args["test_speed"]:
                         time_cost = self.report_speed(model, batch, times=50)
                         continue
-                    pred = model.forward(batch, training=False)
+                    
+                    origin_img = batch['shape'][0]
+                    
+                    # batch['image'] = batch['image'][:, :, :1280, :1280]
+                    # print(batch['image'].shape)
+                    
+                    pred = model.forward(batch, training=False, thresold_size=2496)
+                    pred = pred[:, :, :origin_img[0], :origin_img[1]]
+                    # print(pred.shape)
+                    # exit()
                     output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args["polygon"])
                     if not os.path.isdir(self.args["result_dir"]):
                         os.mkdir(self.args["result_dir"])
-                    # self.format_output(batch, output)
+                    self.format_output(batch, output)
                     raw_metric = self.structure.measurer.validate_measure(
                         batch, output, is_output_polygon=self.args["polygon"], box_thresh=self.args["box_thresh"]
                     )
